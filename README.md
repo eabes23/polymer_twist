@@ -8,9 +8,9 @@ This repository contains the basic data that supports the results of the paper "
 
 
 
-######
+#######
 RUNNING MOLECULAR DYNAMICS SIMULATIONS
-######
+#######
 
 To run the molecular dynamics simulations, simply navigate to the desired folder and run:
 
