@@ -1,0 +1,99 @@
+# 1. INITIALIZATION
+#allows pair, bond, bending and dihedral interactions
+atom_style molecular
+
+  # periodic (video game) boundaries in all cartesian directions
+boundary p p s
+
+  # uses real units (instead of units based on pair potential parameters).  List of units used in manual
+units real
+
+###########
+# 2. ATOM DEFINITION
+########## 
+
+   ##
+   # Read in data from starting configuration file
+   ##  
+
+read_data lammps-AT-config 
+
+change_box all z scale 1 remap
+ 
+ #use to restart
+#read_restart RESTART
+
+   ##
+   # Specify the nature of the bond interactions
+   ##
+
+bond_style harmonic
+bond_coeff 1 450 1.535
+bond_coeff 2 358 1.10
+
+special_bonds lj 0.0 0.0 0.0 angle no dihedral no
+
+angle_style harmonic
+angle_coeff 1 58.36  112.70
+angle_coeff 2 39.38  110.70
+angle_coeff 3 40.54  107.80
+
+dihedral_style opls
+dihedral_coeff 1 1.740 -0.157 0.279 0.0
+dihedral_coeff 2 0.0 0.0 0.366 0.0
+dihedral_coeff 3 0.0 0.0 0.318 0.0
+
+mass 1 12.0
+mass 2 1.0
+mass 3 12.0
+mass 4 12.0
+
+pair_style lj/cut 14.0
+pair_coeff 1 1 0.066 3.5 14.0
+pair_coeff 2 2 0.030 2.5 14.0
+pair_coeff 1 2 0.044 3.0 14.0
+pair_coeff 1 3 0.044 3.0 14.0
+pair_coeff 2 3 0.066 3.5 14.0
+pair_coeff 3 3 0.066 3.5 14.0
+pair_coeff 1 4 0.044 3.0 14.0
+pair_coeff 2 4 0.066 3.5 14.0
+pair_coeff 3 4 0.066 3.5 14.0
+pair_coeff 4 4 0.066 3.5 14.0
+#pair_modify tail yes
+
+
+#
+################
+# 3.  Simulation Settings
+###############
+
+ #ensures that atoms on the same molecule are excluded from pair interactions (necessary for United atom near neighbors)
+neighbor 	2.4 bin
+neigh_modify    every 1 delay 0 check yes
+#communicate single cutoff 50.0 vel yes
+
+
+group yyy type 3
+fix yours yyy setforce 0.0 0.0 0.0
+
+group mmm type 4
+fix mine mmm setforce 0.0 0.0 0.0
+
+# 4.  Run
+
+  ##
+  # Set output "dumps" 
+  ##
+thermo_style custom step temp press ke pe etotal 
+thermo_modify lost warn
+
+restart 10000 restart.dat
+
+timestep 0.1
+
+dump mydump2 all xyz 100 prod-coord.xyz
+dump_modify mydump2 element C H S S
+
+run 20000
+
+write_restart FINALCONFIG
